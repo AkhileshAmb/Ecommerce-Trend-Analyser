@@ -1,8 +1,8 @@
-"""
-Pricing Analysis Agent
+"""Pricing Analysis Agent.
 
-Deterministic agent that analyzes pricing data.
-Computes min, max, optimal price ranges, and pricing statistics.
+Deterministic agent that analyzes numeric pricing data for any product category.
+Computes min, max, quartiles, and statistics from the uploaded price column — ranges always follow the dataset.
+UI formats amounts as INR; optional enrichment may scale USD-like CSV magnitudes.
 """
 
 import pandas as pd

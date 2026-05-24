@@ -135,7 +135,7 @@ def test_gap_agent(df):
 def main():
     """Run all agent tests."""
     print("="*60)
-    print("  AI-Assisted Market Analytics System - Agent Testing")
+    print("  TrendScanner AI - Agent Testing")
     print("="*60)
     
     # Test 1: Ingestion

@@ -1,0 +1,10 @@
+# TrendScanner AI — force readable light chrome (avoids dark click/focus surfaces)
+[theme]
+primaryColor = "#0284c7"
+backgroundColor = "#f1f5f9"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#0f172a"
+font = "sans serif"
+
+[server]
+headless = true

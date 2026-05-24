@@ -6,6 +6,8 @@ The analysis includes:
 3. Feature Analysis: Most common product features and their prevalence
 4. Gap Analysis: Market gaps and underrepresented brand-feature combinations
 
+Assume monetary amounts from the pricing analysis are expressed in Indian Rupees (INR) at the same scale as the uploaded price column.
+
 Summarize these results in plain, academic language suitable for a final-year project presentation. Focus on:
 - Key market insights
 - Notable patterns and trends

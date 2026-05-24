@@ -1,5 +1,5 @@
 """
-Export utilities for Market Analytics System
+Export utilities for TrendScanner AI
 
 Handles exporting analysis results in various formats (JSON, CSV, Excel, PDF).
 """
@@ -10,6 +10,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Optional
 from io import BytesIO
+
+from core.currency import format_inr
 
 try:
     from openpyxl import Workbook
@@ -99,7 +101,7 @@ def export_to_excel(results: Dict, include_charts: bool = False) -> bytes:
     
     # Sheet 1: Summary
     ws_summary = wb.create_sheet("Summary", 0)
-    ws_summary.append(["Market Analytics Report"])
+    ws_summary.append(["TrendScanner AI Report"])
     ws_summary.append(["Generated", results.get("timestamp", datetime.now().isoformat())])
     ws_summary.append(["Total Records", results.get("total_records", 0)])
     ws_summary.append([])
@@ -176,7 +178,7 @@ def export_to_pdf(results: Dict, include_charts: bool = False) -> bytes:
         spaceAfter=30,
         alignment=1  # Center
     )
-    story.append(Paragraph("Market Analytics Report", title_style))
+    story.append(Paragraph("TrendScanner AI Report", title_style))
     story.append(Spacer(1, 12))
     
     # Summary
@@ -213,10 +215,10 @@ def export_to_pdf(results: Dict, include_charts: bool = False) -> bytes:
     pricing_stats = results["agents"]["pricing"]["results"]["price_statistics"]
     pricing_data = [
         ["Metric", "Value"],
-        ["Min Price", f"${pricing_stats['min_price']:.2f}"],
-        ["Max Price", f"${pricing_stats['max_price']:.2f}"],
-        ["Mean Price", f"${pricing_stats['mean_price']:.2f}"],
-        ["Median Price", f"${pricing_stats['median_price']:.2f}"]
+        ["Min Price", format_inr(pricing_stats["min_price"])],
+        ["Max Price", format_inr(pricing_stats["max_price"])],
+        ["Mean Price", format_inr(pricing_stats["mean_price"])],
+        ["Median Price", format_inr(pricing_stats["median_price"])],
     ]
     
     pricing_table = Table(pricing_data)
