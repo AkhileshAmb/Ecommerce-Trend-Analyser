@@ -217,7 +217,12 @@ else:
 
         display_data_quality_metrics(df_work, cleaned_df)
 
-        run = st.button("Run full analysis", type="primary", use_container_width=True)
+        run = st.button(
+            "Run full analysis",
+            type="primary",
+            use_container_width=True,
+            key="mal_run_analysis",
+        )
 
         if run:
             progress = st.progress(0)

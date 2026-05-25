@@ -430,8 +430,18 @@ def render_analysis_results(
             except Exception as e:
                 st.error(f"Export failed: {e}")
 
+        st.markdown('<div class="ts-export-save-section"></div>', unsafe_allow_html=True)
+        st.caption("Optional — save a copy into the project `reports/` folder on this machine.")
+        _sp_l, _sp_c, _sp_r = st.columns([1, 1.4, 1])
+        with _sp_c:
             report_stub = f"market_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-            if st.button("💾 Save JSON to reports/", key="rv_save_reports"):
+            if st.button(
+                "Save JSON to reports",
+                key="rv_save_reports",
+                type="secondary",
+                use_container_width=True,
+                help="Writes the full JSON payload into the reports/ directory.",
+            ):
                 reports_dir = project_root / "reports"
                 reports_dir.mkdir(exist_ok=True)
                 report_path = reports_dir / report_stub
@@ -440,7 +450,7 @@ def render_analysis_results(
                         export_to_json(results, include_llm=include_llm),
                         encoding="utf-8",
                     )
-                    st.success(f"`{report_path}`")
+                    st.success(f"Saved to `{report_path}`")
                 except Exception as err:
                     st.warning(str(err))
 

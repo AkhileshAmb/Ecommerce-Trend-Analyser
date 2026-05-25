@@ -1,0 +1,186 @@
+{
+  "timestamp": "2026-01-21T23:48:54.526965",
+  "total_records": 103,
+  "agent_outputs": [
+    {
+      "agent_name": "brand_agent",
+      "results": {
+        "total_unique_brands": 9,
+        "top_brands": [
+          {
+            "brand": "Samsung",
+            "count": 17,
+            "confidence": 0.165
+          },
+          {
+            "brand": "Xiaomi",
+            "count": 16,
+            "confidence": 0.1553
+          },
+          {
+            "brand": "Apple",
+            "count": 13,
+            "confidence": 0.1262
+          },
+          {
+            "brand": "OnePlus",
+            "count": 12,
+            "confidence": 0.1165
+          },
+          {
+            "brand": "Vivo",
+            "count": 11,
+            "confidence": 0.1068
+          },
+          {
+            "brand": "Realme",
+            "count": 10,
+            "confidence": 0.0971
+          },
+          {
+            "brand": "Oppo",
+            "count": 10,
+            "confidence": 0.0971
+          },
+          {
+            "brand": "Motorola",
+            "count": 8,
+            "confidence": 0.0777
+          },
+          {
+            "brand": "Nokia",
+            "count": 6,
+            "confidence": 0.0583
+          }
+        ],
+        "total_records": 103
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-01-21T23:48:54.502544"
+    },
+    {
+      "agent_name": "pricing_agent",
+      "results": {
+        "total_records": 103,
+        "valid_price_records": 103,
+        "price_statistics": {
+          "min_price": 329.99,
+          "max_price": 1599.99,
+          "mean_price": 718.9220388349518,
+          "median_price": 659.99,
+          "std_price": 266.04183889358615
+        },
+        "optimal_price_range": {
+          "q1_price": 529.99,
+          "median_price": 659.99,
+          "q3_price": 849.99,
+          "optimal_range_min": 529.99,
+          "optimal_range_max": 849.99,
+          "optimal_range_span": 320.0
+        }
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-01-21T23:48:54.508939"
+    },
+    {
+      "agent_name": "feature_agent",
+      "results": {
+        "total_unique_features": 12,
+        "top_features": [
+          {
+            "feature": "5g",
+            "count": 80,
+            "confidence": 0.7767
+          },
+          {
+            "feature": "oled",
+            "count": 77,
+            "confidence": 0.7476
+          },
+          {
+            "feature": "128gb",
+            "count": 61,
+            "confidence": 0.5922
+          },
+          {
+            "feature": "wireless charging",
+            "count": 35,
+            "confidence": 0.3398
+          },
+          {
+            "feature": "4g",
+            "count": 23,
+            "confidence": 0.2233
+          },
+          {
+            "feature": "lcd",
+            "count": 20,
+            "confidence": 0.1942
+          },
+          {
+            "feature": "256gb",
+            "count": 13,
+            "confidence": 0.1262
+          },
+          {
+            "feature": "64gb",
+            "count": 11,
+            "confidence": 0.1068
+          },
+          {
+            "feature": "512gb",
+            "count": 9,
+            "confidence": 0.0874
+          },
+          {
+            "feature": "amoled",
+            "count": 6,
+            "confidence": 0.0583
+          },
+          {
+            "feature": "32gb",
+            "count": 5,
+            "confidence": 0.0485
+          },
+          {
+            "feature": "1tb",
+            "count": 4,
+            "confidence": 0.0388
+          }
+        ],
+        "total_records": 103,
+        "total_feature_mentions": 344
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-01-21T23:48:54.509927"
+    },
+    {
+      "agent_name": "gap_agent",
+      "results": {
+        "total_combinations": 52,
+        "identified_gaps_count": 2,
+        "top_gaps": [
+          {
+            "brand": "Samsung",
+            "feature": "5G,OLED,128GB",
+            "observed_count": 1,
+            "expected_count": 6.27,
+            "gap_score": -0.8406
+          },
+          {
+            "brand": "Apple",
+            "feature": "5G,OLED,128GB",
+            "observed_count": 2,
+            "expected_count": 4.8,
+            "gap_score": -0.583
+          }
+        ],
+        "total_records": 103,
+        "gap_threshold": -0.5
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-01-21T23:48:54.526929"
+    }
+  ],
+  "llm_summary": null
+}

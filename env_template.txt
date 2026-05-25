@@ -1,8 +1,0 @@
-# Environment Variables Template
-# Copy this file to .env and fill in your values
-# Or set environment variables directly in your system
-
-# Gemini API Key for LLM Summarization
-# Get your API key from: https://ai.google.dev/gemini-api/docs/quickstart
-GEMINI_API_KEY=your_api_key_here
-

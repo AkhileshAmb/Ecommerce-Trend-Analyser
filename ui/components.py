@@ -37,7 +37,7 @@ def finalize_chart(fig: go.Figure, height: int = DEFAULT_CHART_HEIGHT) -> go.Fig
     fig.update_layout(
         template=CHART_TEMPLATE,
         height=height,
-        margin=dict(l=52, r=40, t=72, b=56),
+        margin=dict(l=52, r=150, t=80, b=56),
         font=dict(family="'Segoe UI', system-ui, sans-serif", size=13),
         title_font_size=17,
         title_font_color="#0c4a6e",
@@ -47,12 +47,17 @@ def finalize_chart(fig: go.Figure, height: int = DEFAULT_CHART_HEIGHT) -> go.Fig
         plot_bgcolor="rgba(240, 249, 255, 0.5)",
         colorway=CHART_COLORWAY,
         legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.08,
-            xanchor="right",
-            x=1,
-            bgcolor="rgba(255,255,255,0.7)",
+            orientation="v",
+            yanchor="middle",
+            y=0.5,
+            xanchor="left",
+            x=1.02,
+            bgcolor="rgba(255,255,255,0.96)",
+            bordercolor="#cbd5e1",
+            borderwidth=1,
+            font=dict(size=12, color="#0f172a"),
+            itemsizing="constant",
+            tracegroupgap=4,
         ),
         font_color="#334155",
     )
@@ -107,7 +112,7 @@ def results_panel():
 def apply_app_styles() -> None:
     """
     Flash dashboard theme: mesh gradients, chrome tabs, spacing guards against overlaps.
-    Light theme with high-contrast text; fixes dark click/focus surfaces on tabs & expanders.
+    Light theme with master contrast pass: dark text on light surfaces app-wide.
     """
     st.markdown(
         """
@@ -346,8 +351,12 @@ def apply_app_styles() -> None:
             color: #1e293b !important;
           }
           .stRadio label span,
-          .stCheckbox label span,
           .stMultiSelect label span {
+            color: #1e293b !important;
+          }
+          [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] p,
+          [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] span,
+          [data-testid="stCheckbox"] [data-testid="stMarkdownContainer"] p {
             color: #1e293b !important;
           }
           /* Alerts: keep body text dark on tinted backgrounds */
@@ -356,52 +365,28 @@ def apply_app_styles() -> None:
           div[data-testid="stAlert"] [data-testid="stMarkdownContainer"] strong {
             color: #0f172a !important;
           }
-          /*
-           * Selectbox / multiselect closed control — Streamlit theme often paints a
-           * black trigger while our rules only set dark text → invisible labels.
-           */
-          [data-testid="stSelectbox"] [data-baseweb="select"],
-          [data-testid="stSelectbox"] [data-baseweb="select"] > div,
-          [data-testid="stSelectbox"] [data-baseweb="select"] > div > div,
-          [data-testid="stSelectbox"] [data-baseweb="select"] span,
-          [data-testid="stSelectbox"] [data-baseweb="select"] p,
-          [data-testid="stMultiSelect"] [data-baseweb="select"],
-          [data-testid="stMultiSelect"] [data-baseweb="select"] > div,
-          [data-testid="stMultiSelect"] [data-baseweb="select"] span {
+          /* Inputs / selects — force light control surface (fixes black box + hidden text) */
+          .stApp [data-baseweb="select"],
+          .stApp [data-baseweb="select"] > div,
+          .stApp [data-testid="stSelectbox"] [data-baseweb="select"],
+          .stApp [data-testid="stSelectbox"] [data-baseweb="select"] > div {
             background-color: #ffffff !important;
             background: #ffffff !important;
             color: #0f172a !important;
             -webkit-text-fill-color: #0f172a !important;
+            border-color: #cbd5e1 !important;
           }
-          [data-testid="stSelectbox"] [data-baseweb="select"] > div,
-          [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 8px !important;
+          .stApp [data-baseweb="select"] span,
+          .stApp [data-baseweb="select"] p,
+          .stApp [data-baseweb="select"] div[aria-selected="true"],
+          .stApp [data-testid="stSelectbox"] [data-baseweb="select"] span,
+          .stApp [data-testid="stSelectbox"] [data-baseweb="select"] p,
+          .stApp [data-testid="stSelectbox"] [data-baseweb="select"] div {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
           }
-          [data-testid="stSelectbox"] [data-baseweb="select"] svg,
-          [data-testid="stMultiSelect"] [data-baseweb="select"] svg {
+          .stApp [data-baseweb="select"] svg {
             fill: #475569 !important;
-            color: #475569 !important;
-          }
-          [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
-          [data-testid="stSidebar"] [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
-            background: #ffffff !important;
-            background-color: #ffffff !important;
-          }
-          /* Value text inside closed select (e.g. "Drop rows with…") */
-          [data-testid="stSelectbox"] [data-baseweb="select"] > div:first-child,
-          [data-testid="stSelectbox"] [data-baseweb="select"] > div:first-child *,
-          [data-testid="stSelectbox"] [role="combobox"],
-          [data-testid="stSelectbox"] [role="combobox"] * {
-            color: #0f172a !important;
-            -webkit-text-fill-color: #0f172a !important;
-          }
-          [data-testid="stSelectbox"] [data-baseweb="select"] > div:first-child {
-            background-color: #ffffff !important;
-            background: #ffffff !important;
-          }
-          [data-testid="stSelectbox"] [data-baseweb="select"] > div:first-child *:not(svg):not(path) {
-            background-color: transparent !important;
           }
           .stApp [data-baseweb="input"] input,
           .stApp [data-baseweb="textarea"] textarea {
@@ -731,6 +716,22 @@ def apply_app_styles() -> None:
           .js-plotly-plot .plotly .main-svg {
             border-radius: 12px;
           }
+          /* Plotly legend & titles — keep dark on light (Streamlit CSS must not wash out) */
+          [data-testid="stPlotlyChart"] .legend text,
+          .js-plotly-plot .legend text {
+            fill: #0f172a !important;
+            color: #0f172a !important;
+          }
+          [data-testid="stPlotlyChart"] .gtitle,
+          .js-plotly-plot .gtitle {
+            fill: #0c4a6e !important;
+          }
+          [data-testid="stPlotlyChart"] .xtick text,
+          [data-testid="stPlotlyChart"] .ytick text,
+          .js-plotly-plot .xtick text,
+          .js-plotly-plot .ytick text {
+            fill: #475569 !important;
+          }
           [data-testid="stVerticalBlock"] > div [data-testid="element-container"] {
             margin-bottom: 0.5rem;
           }
@@ -829,42 +830,125 @@ def apply_app_styles() -> None:
             border: 1px solid #cbd5e1;
           }
 
-          /* Buttons — dark label on secondary so Streamlit grey never fades out */
+          /* Buttons — light surface by default; primary = teal gradient + white label */
+          .stButton > button {
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+          }
           .stButton > button[kind="secondary"],
           .stButton > button:not([kind="primary"]) {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
             color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            border: 2px solid #0284c7 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
           }
-          /* Primary button — sky → teal */
+          .stButton > button[kind="secondary"] span,
+          .stButton > button[kind="secondary"] p,
+          .stButton > button[kind="secondary"] div,
+          .stButton > button[kind="secondary"] label,
+          .stButton > button:not([kind="primary"]) span,
+          .stButton > button:not([kind="primary"]) p,
+          .stButton > button:not([kind="primary"]) div,
+          .stButton > button:not([kind="primary"]) label,
+          .stButton > button[data-testid="stBaseButton-secondary"],
+          .stButton > button[data-testid="stBaseButton-secondary"] * {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+          }
           .stButton > button[kind="primary"] {
             background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) !important;
+            background-image: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) !important;
             border: none !important;
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
             font-weight: 800 !important;
             letter-spacing: 0.02em;
             box-shadow: 0 8px 22px rgba(2, 132, 199, 0.35);
             border-radius: 14px !important;
           }
-          /*
-           * Download buttons: Streamlit often uses a dark primary fill — our old rule forced
-           * dark text (#0f172a) on dark bg. Force a light chrome + dark label so labels stay readable.
-           */
-          .stDownloadButton > button {
-            border-radius: 12px !important;
-            font-weight: 700 !important;
+          .stButton > button[kind="primary"] span,
+          .stButton > button[kind="primary"] p,
+          .stButton > button[kind="primary"] div {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+          }
+          /* Download buttons — simple light style */
+          .stDownloadButton > button,
+          .stDownloadButton > button[kind="primary"],
+          .stDownloadButton > button[kind="secondary"] {
+            border-radius: 8px !important;
+            font-weight: 600 !important;
             color: #0f172a !important;
             -webkit-text-fill-color: #0f172a !important;
-            background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
-            border: 2px solid rgba(14, 165, 233, 0.45) !important;
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.07) !important;
-          }
-          .stDownloadButton > button:hover {
-            border-color: #0284c7 !important;
             background: #ffffff !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: none !important;
+          }
+          .stDownloadButton > button:hover,
+          .stDownloadButton > button:active,
+          .stDownloadButton > button:focus,
+          .stDownloadButton > button:focus-visible {
+            background: #f8fafc !important;
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            border-color: #94a3b8 !important;
+            box-shadow: none !important;
+          }
+          /* Export tab — save row (outside download panel) */
+          .ts-export-save-section {
+            display: block;
+            margin-top: 0.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+          }
+          .st-key-rv_save_reports {
+            margin-left: auto !important;
+            margin-right: auto !important;
+          }
+          .st-key-rv_save_reports button,
+          .st-key-rv_save_reports button:hover,
+          .st-key-rv_save_reports button:active,
+          .st-key-rv_save_reports button:focus,
+          .st-key-rv_save_reports button:focus-visible {
+            background: #f8fafc !important;
+            background-color: #f8fafc !important;
+            background-image: none !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            font-weight: 600 !important;
+          }
+          .st-key-rv_save_reports button:hover {
+            background: #f1f5f9 !important;
+            background-color: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+          }
+          .st-key-rv_save_reports button span,
+          .st-key-rv_save_reports button p,
+          .st-key-rv_save_reports button:hover span,
+          .st-key-rv_save_reports button:hover p {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
           }
           .stDownloadButton > button span,
-          .stDownloadButton > button p {
-            color: #0f172a !important;
-            -webkit-text-fill-color: #0f172a !important;
+          .stDownloadButton > button p,
+          .stDownloadButton > button div,
+          .stDownloadButton > button:hover span,
+          .stDownloadButton > button:hover p,
+          .stDownloadButton > button:hover div,
+          .stDownloadButton > button:hover label,
+          .stDownloadButton > button:active span,
+          .stDownloadButton > button:focus span {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
           }
 
           /* Export tab — explicit headings/blurbs (avoid ##### / caption washing out) */
@@ -986,12 +1070,10 @@ def apply_app_styles() -> None:
             -webkit-text-fill-color: inherit !important;
           }
 
-          /* Radio / checkbox — never dark label on dark row */
+          /* Radio — label text on light rows */
           .stRadio [role="radiogroup"] label,
           .stRadio [role="radiogroup"] label span,
-          .stRadio [role="radiogroup"] label p,
-          .stCheckbox label,
-          .stCheckbox label span {
+          .stRadio [role="radiogroup"] label p {
             color: #1e293b !important;
             -webkit-text-fill-color: #1e293b !important;
             background-color: transparent !important;
@@ -1007,29 +1089,171 @@ def apply_app_styles() -> None:
             -webkit-text-fill-color: #0c4a6e !important;
           }
 
-          /* Select / multiselect — labels + open dropdown list */
+          /*
+           * Checkbox — high-contrast pattern (all st.checkbox widgets):
+           * OFF = white box + charcoal border | ON = navy fill + white tick
+           */
+          [data-testid="stCheckbox"] label[data-baseweb="checkbox"] {
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 0.6rem !important;
+            background: transparent !important;
+            background-image: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0.2rem 0 !important;
+            cursor: pointer !important;
+          }
+          [data-testid="stCheckbox"] label > div,
+          [data-testid="stCheckbox"] label > span:last-child,
+          [data-testid="stCheckbox"] [data-testid="stMarkdownContainer"],
+          [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] {
+            background: transparent !important;
+            background-image: none !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+          }
+          [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] p,
+          [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] span,
+          [data-testid="stCheckbox"] [data-testid="stMarkdownContainer"] p,
+          [data-testid="stCheckbox"] [data-testid="stMarkdownContainer"] span {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            font-weight: 500 !important;
+          }
+          [data-testid="stCheckbox"] label > span:first-child {
+            flex: 0 0 1.25rem !important;
+            width: 1.25rem !important;
+            min-width: 1.25rem !important;
+            max-width: 1.25rem !important;
+            margin-top: 0.1rem !important;
+            background: transparent !important;
+          }
+          /* OFF — white + charcoal border */
+          [data-testid="stCheckbox"] label > span:first-child > span,
+          [data-testid="stCheckbox"] [data-baseweb="checkbox"] > span:first-child > span,
+          [data-testid="stCheckbox"] input[type="checkbox"] + span {
+            display: block !important;
+            position: relative !important;
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            min-width: 1.25rem !important;
+            max-width: 1.25rem !important;
+            min-height: 1.25rem !important;
+            max-height: 1.25rem !important;
+            flex: 0 0 1.25rem !important;
+            border-radius: 5px !important;
+            box-sizing: border-box !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            border: 2px solid #334155 !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+          }
+          [data-testid="stCheckbox"] label > span:first-child > span > div,
+          [data-testid="stCheckbox"] [data-baseweb="checkbox"] span > div {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+          /* ON — navy fill */
+          [data-testid="stCheckbox"] label:has(input:checked) > span:first-child > span,
+          [data-testid="stCheckbox"] [data-baseweb="checkbox"]:has(input:checked) > span:first-child > span,
+          [data-testid="stCheckbox"] input[type="checkbox"]:checked + span {
+            background-color: #0f172a !important;
+            background-image: none !important;
+            border-color: #0f172a !important;
+          }
+          /* White tick (CSS — always visible) */
+          [data-testid="stCheckbox"] label:has(input:checked) > span:first-child > span::after,
+          [data-testid="stCheckbox"] [data-baseweb="checkbox"]:has(input:checked) > span:first-child > span::after,
+          [data-testid="stCheckbox"] input[type="checkbox"]:checked + span::after {
+            content: "" !important;
+            position: absolute !important;
+            left: 0.34rem !important;
+            top: 0.12rem !important;
+            width: 0.3rem !important;
+            height: 0.55rem !important;
+            border: solid #ffffff !important;
+            border-width: 0 3px 3px 0 !important;
+            transform: rotate(45deg) !important;
+            display: block !important;
+            pointer-events: none !important;
+            z-index: 4 !important;
+          }
+          [data-testid="stCheckbox"] label:has(input:not(:checked)) > span:first-child > span::after,
+          [data-testid="stCheckbox"] input[type="checkbox"]:not(:checked) + span::after {
+            content: none !important;
+            display: none !important;
+          }
+          /* Hide Streamlit SVG tick (we draw our own) */
+          [data-testid="stCheckbox"] label > span:first-child svg,
+          [data-testid="stCheckbox"] [data-baseweb="checkbox"] svg {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+          }
+          [data-testid="stCheckbox"] label:has(input:focus-visible) > span:first-child > span,
+          [data-testid="stCheckbox"] input[type="checkbox"]:focus-visible + span {
+            outline: 2px solid #38bdf8 !important;
+            outline-offset: 2px !important;
+          }
+
+          /* Select / multiselect — closed control + open menu */
           [data-testid="stSelectbox"] label,
           [data-testid="stMultiSelect"] label {
             color: #1e293b !important;
           }
-          [data-baseweb="popover"],
-          [data-baseweb="popover"] ul,
-          [data-baseweb="menu"],
-          [data-baseweb="menu"] ul {
-            background: #ffffff !important;
+          [data-testid="stSelectbox"] [data-baseweb="select"],
+          [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+          [data-testid="stSelectbox"] [data-baseweb="select"] > div > div,
+          [data-testid="stMultiSelect"] [data-baseweb="select"],
+          [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
             background-color: #ffffff !important;
+            background: #ffffff !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
           }
+          [data-testid="stSelectbox"] [data-baseweb="select"] *,
+          [data-testid="stMultiSelect"] [data-baseweb="select"] * {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+          }
+          [data-testid="stSelectbox"] [data-baseweb="select"] svg,
+          [data-testid="stMultiSelect"] [data-baseweb="select"] svg {
+            fill: #475569 !important;
+            color: #475569 !important;
+          }
+          [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"],
+          [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+          [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] > div > div {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+          }
+          [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] span,
+          [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] div {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            background-color: transparent !important;
+          }
+          [data-baseweb="popover"],
+          [data-baseweb="popover"] > div,
+          [data-baseweb="menu"],
           [data-baseweb="popover"] li,
           [data-baseweb="menu"] li,
-          ul[role="listbox"] li,
-          [role="listbox"] [role="option"] {
+          ul[role="listbox"],
+          ul[role="listbox"] li {
             color: #0f172a !important;
             -webkit-text-fill-color: #0f172a !important;
             background: #ffffff !important;
             background-color: #ffffff !important;
           }
           ul[role="listbox"] li[aria-selected="true"],
-          [role="listbox"] [role="option"][aria-selected="true"],
           [data-baseweb="popover"] li[aria-selected="true"],
           [data-baseweb="menu"] li[aria-selected="true"] {
             background: #e0f2fe !important;
@@ -1037,18 +1261,17 @@ def apply_app_styles() -> None:
             color: #0c4a6e !important;
             -webkit-text-fill-color: #0c4a6e !important;
           }
-          [data-baseweb="popover"] li span,
-          [data-baseweb="menu"] li span,
-          ul[role="listbox"] li span {
-            color: inherit !important;
-            -webkit-text-fill-color: inherit !important;
-            background: transparent !important;
+          ul[role="listbox"] li:hover,
+          [data-baseweb="popover"] li:hover {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
           }
 
           /* Sidebar widgets — same rules inside Workspace */
           [data-testid="stSidebar"] .stRadio [role="radiogroup"] label,
           [data-testid="stSidebar"] .stRadio [role="radiogroup"] label span,
-          [data-testid="stSidebar"] .stCheckbox label span,
+          [data-testid="stSidebar"] [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] p,
+          [data-testid="stSidebar"] [data-testid="stCheckbox"] [data-testid="stMarkdownContainer"] p,
           [data-testid="stSidebar"] [data-testid="stWidgetLabel"] label,
           [data-testid="stSidebar"] [data-testid="stWidgetLabel"] span,
           [data-testid="stSidebar"] [data-testid="stSlider"] label,
@@ -1059,7 +1282,6 @@ def apply_app_styles() -> None:
           [data-testid="stSidebar"] .stRadio [role="radiogroup"] label:has(input:checked) {
             background-color: #ccfbf1 !important;
           }
-
           /* Sidebar nested expander (manual column override) */
           [data-testid="stSidebar"] [data-testid="stExpander"] [data-testid="stExpander"] {
             background: #f8fafc !important;
@@ -1093,30 +1315,257 @@ def apply_app_styles() -> None:
           .mal-step-chip.done span { color: #065f46 !important; -webkit-text-fill-color: #065f46 !important; }
           .mal-step-chip.active span { color: #0c4a6e !important; -webkit-text-fill-color: #0c4a6e !important; }
 
-          /* Primary / secondary buttons — keep label readable on click */
-          .stButton > button[kind="primary"],
-          .stButton > button[kind="primary"] span,
-          .stButton > button[kind="primary"] p {
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
+          /* Buttons — no hover colour shift (theme hover was hiding labels) */
+          .stButton > button[kind="secondary"]:hover,
+          .stButton > button[kind="secondary"]:active,
+          .stButton > button[kind="secondary"]:focus,
+          .stButton > button[kind="secondary"]:focus-visible,
+          .stButton > button:not([kind="primary"]):hover,
+          .stButton > button:not([kind="primary"]):active,
+          .stButton > button:not([kind="primary"]):focus,
+          .stButton > button:not([kind="primary"]):focus-visible,
+          .stButton > button[data-testid="stBaseButton-secondary"]:hover {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border-color: #0284c7 !important;
+          }
+          .stButton > button[kind="secondary"]:hover,
+          .stButton > button[kind="secondary"]:hover span,
+          .stButton > button[kind="secondary"]:hover p,
+          .stButton > button[kind="secondary"]:hover div,
+          .stButton > button[kind="secondary"]:hover label,
+          .stButton > button[kind="secondary"]:active,
+          .stButton > button[kind="secondary"]:active *,
+          .stButton > button[kind="secondary"]:focus,
+          .stButton > button[kind="secondary"]:focus *,
+          .stButton > button:not([kind="primary"]):hover,
+          .stButton > button:not([kind="primary"]):hover span,
+          .stButton > button:not([kind="primary"]):hover p,
+          .stButton > button:not([kind="primary"]):hover div,
+          .stButton > button:not([kind="primary"]):hover label,
+          .stButton > button:not([kind="primary"]):active,
+          .stButton > button:not([kind="primary"]):active *,
+          .stButton > button:not([kind="primary"]):focus,
+          .stButton > button:not([kind="primary"]):focus *,
+          .stButton > button[data-testid="stBaseButton-secondary"]:hover,
+          .stButton > button[data-testid="stBaseButton-secondary"]:hover * {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
           }
           .stButton > button[kind="primary"]:hover,
           .stButton > button[kind="primary"]:active,
-          .stButton > button[kind="primary"]:focus {
+          .stButton > button[kind="primary"]:focus,
+          .stButton > button[kind="primary"]:focus-visible {
+            background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) !important;
+            background-image: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) !important;
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
+            border: none !important;
           }
-          .stButton > button[kind="secondary"]:hover,
-          .stButton > button:not([kind="primary"]):hover {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            -webkit-text-fill-color: #0f172a !important;
+          .stButton > button[kind="primary"]:hover span,
+          .stButton > button[kind="primary"]:hover p {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
           }
 
           /* Tab panels — headings inside results */
           .main [role="tabpanel"] [data-testid="stMarkdownContainer"] p,
           .main [role="tabpanel"] [data-testid="stCaptionContainer"] p {
             color: #334155 !important;
+          }
+
+          /* ============================================================
+             MASTER CONTRAST PASS — light surfaces = dark text (#0f172a)
+             Only dark panels (hero, workspace banner, badges) use light text.
+             ============================================================ */
+          .stApp,
+          [data-testid="stAppViewContainer"],
+          [data-testid="stMain"],
+          [data-testid="stSidebar"] {
+            --text-color: #1e293b !important;
+            --heading-color: #0f172a !important;
+            --foreground-color: #1e293b !important;
+          }
+
+          /* Sidebar body copy (emotion spans default to invisible grey/white) */
+          [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+          [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] li,
+          [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
+          [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
+          [data-testid="stSidebar"] [data-testid="stWidgetLabel"] span,
+          [data-testid="stSidebar"] [data-testid="stWidgetLabel"] label,
+          [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
+          [data-testid="stSidebar"] [data-testid="stCaptionContainer"] span,
+          [data-testid="stSidebar"] .stRadio label,
+          [data-testid="stSidebar"] .stRadio label span,
+          [data-testid="stSidebar"] .stCheckbox label span,
+          [data-testid="stSidebar"] [data-testid="stSlider"] label,
+          [data-testid="stSidebar"] [data-testid="stSlider"] div {
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
+          }
+          [data-testid="stSidebar"] .ts-section-lead,
+          [data-testid="stSidebar"] .ts-section-lead strong {
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
+          }
+          [data-testid="stSidebar"] .ts-section-lead strong {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+          }
+          [data-testid="stSidebar"] .ts-settings-footer,
+          [data-testid="stSidebar"] .ts-settings-footer strong {
+            color: #334155 !important;
+            -webkit-text-fill-color: #334155 !important;
+          }
+          [data-testid="stSidebar"] .ts-settings-footer strong {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+          }
+
+          /* Tabs — unselected must not fade to white-on-white */
+          .stTabs [data-baseweb="tab"],
+          .stTabs [data-baseweb="tab"] span,
+          .stTabs [data-baseweb="tab"] p {
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
+          }
+          .stTabs [data-baseweb="tab"][aria-selected="true"],
+          .stTabs [data-baseweb="tab"][aria-selected="true"] span,
+          .stTabs [data-baseweb="tab"][aria-selected="true"] p {
+            color: #0369a1 !important;
+            -webkit-text-fill-color: #0369a1 !important;
+          }
+
+          /* Metrics, progress, spinners */
+          [data-testid="stMetricLabel"],
+          [data-testid="stMetricLabel"] span {
+            color: #334155 !important;
+            -webkit-text-fill-color: #334155 !important;
+          }
+          [data-testid="stMetricValue"],
+          [data-testid="stMetricValue"] span {
+            color: #0369a1 !important;
+            -webkit-text-fill-color: #0369a1 !important;
+          }
+          [data-testid="stMetricDelta"],
+          [data-testid="stMetricDelta"] span {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+          }
+          [data-testid="stProgress"] label,
+          [data-testid="stProgress"] span,
+          .stSpinner,
+          .stSpinner span {
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
+          }
+
+          /* Alerts / info / warnings — tinted bg, always dark copy */
+          [data-testid="stAlert"],
+          [data-testid="stAlert"] *,
+          [data-testid="stNotification"],
+          [data-testid="stNotification"] [data-testid="stMarkdownContainer"] p,
+          [data-testid="stNotification"] [data-testid="stMarkdownContainer"] span {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+          }
+
+          /* Dataframes & tables */
+          [data-testid="stDataFrame"],
+          [data-testid="stDataFrame"] span,
+          [data-testid="stTable"],
+          [data-testid="stTable"] span,
+          .dvn-scroller {
+            color: #0f172a !important;
+          }
+
+          /* Code / JSON blocks */
+          [data-testid="stCodeBlock"],
+          [data-testid="stCodeBlock"] pre,
+          [data-testid="stCodeBlock"] code {
+            color: #0f172a !important;
+            background: #f8fafc !important;
+          }
+
+          /* All download + export keys */
+          .stDownloadButton > button,
+          .stDownloadButton > button:hover,
+          .stDownloadButton > button:active,
+          .stDownloadButton > button:focus,
+          .stDownloadButton > button span,
+          .stDownloadButton > button:hover span,
+          .st-key-rv_dl_json button,
+          .st-key-rv_dl_csv button,
+          .st-key-rv_dl_xlsx button,
+          .st-key-rv_dl_pdf button,
+          .st-key-rv_dl_json button:hover,
+          .st-key-rv_dl_csv button:hover,
+          .st-key-rv_dl_xlsx button:hover,
+          .st-key-rv_dl_pdf button:hover,
+          .st-key-rv_dl_json button *,
+          .st-key-rv_dl_csv button *,
+          .st-key-rv_dl_xlsx button *,
+          .st-key-rv_dl_pdf button * {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+          }
+
+          /* Primary CTAs — teal fill + white label (Run analysis, Generate summary) */
+          .st-key-mal_run_analysis button,
+          .st-key-mal_run_analysis button:hover,
+          .st-key-rv_llm_gen button,
+          .st-key-rv_llm_gen button:hover,
+          .st-key-rv_llm_regen button,
+          .st-key-rv_llm_regen button:hover,
+          .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) !important;
+            background-image: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+          }
+          .st-key-mal_run_analysis button span,
+          .st-key-mal_run_analysis button:hover span,
+          .st-key-rv_llm_gen button span,
+          .st-key-rv_llm_gen button:hover span,
+          .st-key-rv_llm_regen button span,
+          .st-key-rv_llm_regen button:hover span,
+          .stButton > button[kind="primary"] span,
+          .stButton > button[kind="primary"] p {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+          }
+
+          /* Expander bodies in sidebar + results */
+          [data-testid="stExpander"] [data-testid="stMarkdownContainer"] p,
+          [data-testid="stExpander"] [data-testid="stMarkdownContainer"] li,
+          [data-testid="stExpander"] [data-testid="stMarkdownContainer"] span,
+          [data-testid="stExpander"] [data-testid="stCaptionContainer"] p {
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
+          }
+
+          /* Gap cards & export blurbs in results */
+          .mal-gap-card,
+          .mal-gap-card p,
+          .mal-gap-card span,
+          .mal-export-blurb,
+          .mal-export-blurb strong,
+          .mal-upload-callout,
+          .mal-upload-callout span {
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
+          }
+          .mal-export-blurb strong,
+          .mal-upload-callout strong {
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
           }
         </style>
         """,
@@ -1239,17 +1688,51 @@ def create_dashboard_summary(
 
 
 def create_brand_pie_chart(brands_df: pd.DataFrame) -> go.Figure:
-    """Create a pie chart for brand distribution."""
+    """Donut chart with readable vertical legend (names outside slices)."""
+    plot_df = brands_df.sort_values("count", ascending=False).reset_index(drop=True)
     fig = px.pie(
-        brands_df,
+        plot_df,
         values="count",
         names="brand",
-        title="Share of rows by brand",
-        hole=0.45,
+        hole=0.42,
         color_discrete_sequence=CHART_COLORWAY,
     )
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    return finalize_chart(fig, height=400)
+    fig.update_traces(
+        textposition="inside",
+        textinfo="percent",
+        textfont=dict(color="#ffffff", size=11),
+        marker=dict(line=dict(color="#ffffff", width=1.5)),
+        hovertemplate="<b>%{label}</b><br>%{value:,} rows<br>%{percent}<extra></extra>",
+    )
+    fig = finalize_chart(fig, height=440)
+    fig.update_layout(
+        title=dict(
+            text="Share of rows by brand",
+            x=0.02,
+            xanchor="left",
+            y=0.98,
+            yanchor="top",
+            font=dict(size=17, color="#0c4a6e"),
+        ),
+        margin=dict(l=28, r=175, t=88, b=52),
+        showlegend=True,
+        legend=dict(
+            title=dict(text="Brand", font=dict(size=11, color="#475569")),
+            orientation="v",
+            yanchor="middle",
+            y=0.5,
+            xanchor="left",
+            x=1.01,
+            font=dict(size=12, color="#0f172a"),
+            bgcolor="rgba(255,255,255,0.98)",
+            bordercolor="#94a3b8",
+            borderwidth=1,
+            itemsizing="constant",
+            tracegroupgap=6,
+            itemwidth=30,
+        ),
+    )
+    return fig
 
 
 def create_price_histogram(prices: List[float], title: str = "Price Distribution") -> go.Figure:

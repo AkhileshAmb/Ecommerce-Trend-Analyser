@@ -1,17 +1,16 @@
 brand,price,feature,model
-Samsung,899.99,"5G,OLED,128GB",Galaxy S21
-Apple,1099.99,"5G,OLED,256GB",iPhone 13
-Samsung,799.99,"4G,LCD,64GB",Galaxy A52
-Xiaomi,599.99,"5G,OLED,128GB",Mi 11
-Apple,1299.99,"5G,OLED,512GB",iPhone 13 Pro
-Samsung,699.99,"4G,LCD,128GB",Galaxy A32
-OnePlus,749.99,"5G,OLED,128GB",Nord 2
-Xiaomi,449.99,"4G,LCD,64GB",Redmi Note 10
-Apple,999.99,"5G,OLED,128GB",iPhone 12
-Samsung,899.99,"5G,OLED,256GB",Galaxy S20
-OnePlus,599.99,"5G,AMOLED,128GB",Nord CE
-Xiaomi,399.99,"4G,LCD,64GB",Redmi 9
-Apple,799.99,"4G,LCD,64GB",iPhone SE
-Samsung,649.99,"4G,OLED,128GB",Galaxy A72
-Xiaomi,549.99,"5G,OLED,128GB",Mi 10T
-
+Samsung,64888,"5G,OLED,128GB",Galaxy S21
+Apple,82443,"5G,OLED,256GB",iPhone 13
+Samsung,56110,"4G,LCD,64GB",Galaxy A52
+Xiaomi,38555,"5G,OLED,128GB",Mi 11
+Apple,99999,"5G,OLED,512GB",iPhone 13 Pro
+Samsung,47332,"4G,LCD,128GB",Galaxy A32
+OnePlus,51721,"5G,OLED,128GB",Nord 2
+Xiaomi,25388,"4G,LCD,64GB",Redmi Note 10
+Apple,73666,"5G,OLED,128GB",iPhone 12
+Samsung,64888,"5G,OLED,256GB",Galaxy S20
+OnePlus,38555,"5G,AMOLED,128GB",Nord CE
+Xiaomi,20999,"4G,LCD,64GB",Redmi 9
+Apple,56110,"4G,LCD,64GB",iPhone SE
+Samsung,42943,"4G,OLED,128GB",Galaxy A72
+Xiaomi,34166,"5G,OLED,128GB",Mi 10T
