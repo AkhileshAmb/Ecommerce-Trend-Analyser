@@ -1090,28 +1090,16 @@ def apply_app_styles() -> None:
           }
 
           /*
-           * Checkbox — high-contrast pattern (all st.checkbox widgets):
-           * OFF = white box + charcoal border | ON = navy fill + white tick
+           * Checkboxes — minimal styling only. Custom overlays / pointer-events
+           * on inner spans broke label clicks in Streamlit 1.52 (Workspace sidebar).
            */
-          [data-testid="stCheckbox"] label[data-baseweb="checkbox"] {
-            display: flex !important;
-            align-items: flex-start !important;
-            gap: 0.6rem !important;
+          [data-testid="stCheckbox"] label {
+            cursor: pointer !important;
+            pointer-events: auto !important;
             background: transparent !important;
             background-image: none !important;
             border: none !important;
             box-shadow: none !important;
-            padding: 0.2rem 0 !important;
-            cursor: pointer !important;
-          }
-          [data-testid="stCheckbox"] label > div,
-          [data-testid="stCheckbox"] label > span:last-child,
-          [data-testid="stCheckbox"] [data-testid="stMarkdownContainer"],
-          [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] {
-            background: transparent !important;
-            background-image: none !important;
-            flex: 1 1 auto !important;
-            min-width: 0 !important;
           }
           [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] p,
           [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] span,
@@ -1120,84 +1108,7 @@ def apply_app_styles() -> None:
             color: #0f172a !important;
             -webkit-text-fill-color: #0f172a !important;
             font-weight: 500 !important;
-          }
-          [data-testid="stCheckbox"] label > span:first-child {
-            flex: 0 0 1.25rem !important;
-            width: 1.25rem !important;
-            min-width: 1.25rem !important;
-            max-width: 1.25rem !important;
-            margin-top: 0.1rem !important;
-            background: transparent !important;
-          }
-          /* OFF — white + charcoal border */
-          [data-testid="stCheckbox"] label > span:first-child > span,
-          [data-testid="stCheckbox"] [data-baseweb="checkbox"] > span:first-child > span,
-          [data-testid="stCheckbox"] input[type="checkbox"] + span {
-            display: block !important;
-            position: relative !important;
-            width: 1.25rem !important;
-            height: 1.25rem !important;
-            min-width: 1.25rem !important;
-            max-width: 1.25rem !important;
-            min-height: 1.25rem !important;
-            max-height: 1.25rem !important;
-            flex: 0 0 1.25rem !important;
-            border-radius: 5px !important;
-            box-sizing: border-box !important;
-            background-color: #ffffff !important;
-            background-image: none !important;
-            border: 2px solid #334155 !important;
-            box-shadow: none !important;
-            overflow: visible !important;
-          }
-          [data-testid="stCheckbox"] label > span:first-child > span > div,
-          [data-testid="stCheckbox"] [data-baseweb="checkbox"] span > div {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-          }
-          /* ON — navy fill */
-          [data-testid="stCheckbox"] label:has(input:checked) > span:first-child > span,
-          [data-testid="stCheckbox"] [data-baseweb="checkbox"]:has(input:checked) > span:first-child > span,
-          [data-testid="stCheckbox"] input[type="checkbox"]:checked + span {
-            background-color: #0f172a !important;
-            background-image: none !important;
-            border-color: #0f172a !important;
-          }
-          /* White tick (CSS — always visible) */
-          [data-testid="stCheckbox"] label:has(input:checked) > span:first-child > span::after,
-          [data-testid="stCheckbox"] [data-baseweb="checkbox"]:has(input:checked) > span:first-child > span::after,
-          [data-testid="stCheckbox"] input[type="checkbox"]:checked + span::after {
-            content: "" !important;
-            position: absolute !important;
-            left: 0.34rem !important;
-            top: 0.12rem !important;
-            width: 0.3rem !important;
-            height: 0.55rem !important;
-            border: solid #ffffff !important;
-            border-width: 0 3px 3px 0 !important;
-            transform: rotate(45deg) !important;
-            display: block !important;
-            pointer-events: none !important;
-            z-index: 4 !important;
-          }
-          [data-testid="stCheckbox"] label:has(input:not(:checked)) > span:first-child > span::after,
-          [data-testid="stCheckbox"] input[type="checkbox"]:not(:checked) + span::after {
-            content: none !important;
-            display: none !important;
-          }
-          /* Hide Streamlit SVG tick (we draw our own) */
-          [data-testid="stCheckbox"] label > span:first-child svg,
-          [data-testid="stCheckbox"] [data-baseweb="checkbox"] svg {
-            opacity: 0 !important;
-            visibility: hidden !important;
-            width: 0 !important;
-            height: 0 !important;
-          }
-          [data-testid="stCheckbox"] label:has(input:focus-visible) > span:first-child > span,
-          [data-testid="stCheckbox"] input[type="checkbox"]:focus-visible + span {
-            outline: 2px solid #38bdf8 !important;
-            outline-offset: 2px !important;
+            cursor: pointer !important;
           }
 
           /* Select / multiselect — closed control + open menu */
@@ -1618,7 +1529,7 @@ def create_dashboard_summary(
         st.markdown("##### At a glance")
         st.caption("Deterministic outputs from all four agents on your cleaned file.")
     else:
-        st.header("📊 Executive Dashboard")
+        st.header("Executive Dashboard")
 
     brand_result = results["agents"]["brand"]
     pricing_result = results["agents"]["pricing"]
@@ -1832,14 +1743,14 @@ def create_data_quality_metrics(df: pd.DataFrame) -> Dict:
 
 def display_data_quality_metrics(df: pd.DataFrame, cleaned_df: pd.DataFrame) -> None:
     """Display data quality metrics before and after cleaning."""
-    with st.expander("📈 Data Quality Metrics", expanded=False):
+    with st.expander("Data Quality Metrics", expanded=False):
         before_metrics = create_data_quality_metrics(df)
         after_metrics = create_data_quality_metrics(cleaned_df)
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("📥 Before Cleaning")
+            st.subheader("Before Cleaning")
             st.metric(
                 "Total Rows", 
                 f"{before_metrics['total_rows']:,}",
@@ -1878,7 +1789,7 @@ def display_data_quality_metrics(df: pd.DataFrame, cleaned_df: pd.DataFrame) -> 
             )
         
         with col2:
-            st.subheader("✨ After Cleaning")
+            st.subheader("After Cleaning")
             rows_removed = before_metrics['total_rows'] - after_metrics['total_rows']
             rows_delta = f"-{rows_removed}" if rows_removed > 0 else None
             st.metric(
@@ -2190,13 +2101,13 @@ def render_workspace_sidebar(df: pd.DataFrame, uploaded_filename: str) -> Worksp
 
     column_mapping: Dict[str, str]
     try:
-        with st.sidebar.expander("① Data columns", expanded=True):
+        with st.sidebar.expander("Data columns", expanded=True):
             column_mapping = _column_mapping_widgets(df.head(1))
     except Exception as e:
         st.sidebar.warning(f"Column detection issue: {e}")
         column_mapping, _, _, _, _ = _detect_column_mapping(df.head(1))
 
-    with st.sidebar.expander("② Prices & INR", expanded=False):
+    with st.sidebar.expander("Prices & INR", expanded=False):
         st.markdown(
             '<p class="ts-section-lead">How prices are interpreted before charts and '
             "gap scoring. Reports always respect your numeric range after transforms.</p>",
@@ -2213,7 +2124,7 @@ def render_workspace_sidebar(df: pd.DataFrame, uploaded_filename: str) -> Worksp
         if price_mode == "live_shopping":
             st.info("Optional: set **SERPAPI_API_KEY** for Google Shopping India hints.")
 
-    with st.sidebar.expander("③ Data cleaning", expanded=False):
+    with st.sidebar.expander("Data cleaning", expanded=False):
         st.markdown(
             '<p class="ts-section-lead">Applied immediately before agents run. '
             "Duplicate rows are always removed.</p>",
@@ -2231,13 +2142,13 @@ def render_workspace_sidebar(df: pd.DataFrame, uploaded_filename: str) -> Worksp
             help="Choose how sparse cells are handled in the pipeline.",
         )
 
-    with st.sidebar.expander("④ Analysis engine", expanded=True):
+    with st.sidebar.expander("Analysis engine", expanded=True):
         analysis_params = _analysis_parameters_widgets()
 
-    with st.sidebar.expander("⑤ Export & reports", expanded=False):
+    with st.sidebar.expander("Export & reports", expanded=False):
         export_options = _export_options_widgets()
 
-    with st.sidebar.expander("⑥ AI summary", expanded=False):
+    with st.sidebar.expander("AI summary", expanded=False):
         st.markdown(
             '<p class="ts-section-lead">Optional narrative from Gemini on the '
             "<strong>AI summary</strong> tab. Requires GEMINI_API_KEY.</p>",

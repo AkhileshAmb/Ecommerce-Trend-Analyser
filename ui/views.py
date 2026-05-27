@@ -104,13 +104,13 @@ def render_analysis_results(
 
     tab_ov, tab_br, tab_pr, tab_ft, tab_gp, tab_ai, tab_dl = st.tabs(
         [
-            "📊 Overview",
-            "🏷️ Brand analysis",
-            "💹 Pricing analysis",
-            "🔧 Feature analysis",
-            "🎯 Gap analysis",
-            "✨ AI summary",
-            "📥 Export",
+            "Overview",
+            "Brand analysis",
+            "Pricing analysis",
+            "Feature analysis",
+            "Gap analysis",
+            "AI summary",
+            "Export",
         ]
     )
 
@@ -355,11 +355,11 @@ def render_analysis_results(
             else:
                 if cached and cached.get("status") == "success":
                     st.info(
-                        "Turn on **Generate AI executive summary** under **⑥ AI summary** in Workspace to view or regenerate."
+                        "Turn on **Generate AI executive summary** under **AI summary** in Workspace to view or regenerate."
                     )
                 else:
                     st.info(
-                        "Enable **⑥ AI summary** in Workspace, then use **Generate summary** here."
+                        "Enable **AI summary** in Workspace, then use **Generate summary** here."
                     )
 
     # --- Export only ---
@@ -371,7 +371,7 @@ def render_analysis_results(
         )
         st.markdown(
             '<p class="mal-export-blurb">Pull structured outputs. '
-            "<strong>Embed charts in Excel & PDF</strong> under <strong>⑤ Export & reports</strong> in Workspace affects Excel and PDF.</p>",
+            "<strong>Embed charts in Excel & PDF</strong> under <strong>Export & reports</strong> in Workspace affects Excel and PDF.</p>",
             unsafe_allow_html=True,
         )
 
@@ -390,7 +390,7 @@ def render_analysis_results(
                 pdf_data = export_to_pdf(results, include_charts=incl_charts)
                 with er1:
                     st.download_button(
-                        "📄 JSON — full structure",
+                        "JSON — full structure",
                         json_payload,
                         file_name=f"{base_filename}.json",
                         mime="application/json",
@@ -399,7 +399,7 @@ def render_analysis_results(
                     )
                 with er2:
                     st.download_button(
-                        "📑 CSV — flat tables",
+                        "CSV — flat tables",
                         csv_payload,
                         file_name=f"{base_filename}.csv",
                         mime="text/csv",
@@ -408,7 +408,7 @@ def render_analysis_results(
                     )
                 with er3:
                     st.download_button(
-                        "📗 Excel — workbook",
+                        "Excel — workbook",
                         excel_data,
                         file_name=f"{base_filename}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -417,7 +417,7 @@ def render_analysis_results(
                     )
                 with er4:
                     st.download_button(
-                        "📕 PDF — report",
+                        "PDF — report",
                         pdf_data,
                         file_name=f"{base_filename}.pdf",
                         mime="application/pdf",

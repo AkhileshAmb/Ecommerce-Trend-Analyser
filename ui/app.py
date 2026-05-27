@@ -76,7 +76,6 @@ def cached_validate_and_clean(
 
 st.set_page_config(
     page_title="TrendScanner AI",
-    page_icon="✨",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -275,7 +274,7 @@ else:
                 unsafe_allow_html=True,
             )
             st.markdown(
-                '<p class="mal-dashboard-title">✨ Results dashboard</p>',
+                '<p class="mal-dashboard-title">Results dashboard</p>',
                 unsafe_allow_html=True,
             )
             render_analysis_results(

@@ -141,13 +141,13 @@ def main():
     # Test 1: Ingestion
     df = test_ingestion()
     if df is None:
-        print("\n✗ Cannot proceed without data. Exiting.")
+        print("\nERROR: Cannot proceed without data. Exiting.")
         return
     
     # Test 2: Validation
     cleaned_df = test_validation(df)
     if cleaned_df is None:
-        print("\n✗ Validation failed. Exiting.")
+        print("\nERROR: Validation failed. Exiting.")
         return
     
     # Test 3-6: Agents
