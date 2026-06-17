@@ -34,6 +34,43 @@ from ui.export_utils import (
     export_to_json,
     export_to_pdf,
 )
+from ui.email_utils import (
+    build_report_email_body,
+    build_report_email_html,
+    build_report_email_subject,
+    email_configured,
+    email_provider_label,
+    resolve_brevo_config,
+    resolve_smtp_config,
+    send_report_email,
+)
+
+
+def _build_email_attachment(
+    results: Dict[str, Any],
+    fmt: str,
+    base_filename: str,
+    *,
+    include_llm: bool,
+    incl_charts: bool,
+) -> tuple[bytes, str, str]:
+    """Return (bytes, filename, mime_type) for the chosen export format."""
+    if fmt == "PDF":
+        data = export_to_pdf(results, include_charts=incl_charts)
+        return data, f"{base_filename}.pdf", "application/pdf"
+    if fmt == "Excel":
+        data = export_to_excel(results, include_charts=incl_charts)
+        return (
+            data,
+            f"{base_filename}.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    if fmt == "CSV":
+        csv_text = export_to_csv(results)
+        return csv_text.encode("utf-8"), f"{base_filename}.csv", "text/csv"
+    # JSON
+    payload = export_to_json(results, include_llm=include_llm)
+    return payload.encode("utf-8"), f"{base_filename}.json", "application/json"
 
 
 def _format_run_time(ts: str) -> str:
@@ -429,6 +466,98 @@ def render_analysis_results(
                 st.info("`pip install openpyxl reportlab`")
             except Exception as e:
                 st.error(f"Export failed: {e}")
+
+        st.markdown('<div class="ts-export-save-section"></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<p class="mal-export-heading">Email report</p>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<p class="mal-export-blurb">Send the report as an email attachment. '
+            "For reliable <strong>inbox</strong> delivery, use <strong>Brevo</strong> "
+            "(free at brevo.com — verify your sender email, then set "
+            "<code>EMAIL_PROVIDER=brevo</code> and <code>BREVO_API_KEY</code> in "
+            "<code>.env</code>). Gmail SMTP often lands in spam.</p>",
+            unsafe_allow_html=True,
+        )
+
+        if not email_configured():
+            st.info(
+                "Email is not configured. Recommended: sign up at brevo.com, verify your sender, "
+                "add BREVO_API_KEY + EMAIL_PROVIDER=brevo to `.env`, then restart. "
+                "Fallback: SMTP_HOST, SMTP_USER, SMTP_PASSWORD."
+            )
+        else:
+            brevo_cfg_note = email_provider_label()
+            st.caption(f"Delivery: {brevo_cfg_note}")
+            sender_cfg = resolve_brevo_config() or resolve_smtp_config()
+            if sender_cfg:
+                from_label = sender_cfg.get("from_name") or "TrendScanner AI"
+                st.caption(f"Sender: {from_label} <{sender_cfg['from_addr']}>")
+
+        with results_panel():
+            em_l, em_r = st.columns([1.4, 1])
+            with em_l:
+                recipient_email = st.text_input(
+                    "Recipient email",
+                    placeholder="examiner@example.com",
+                    key="rv_email_recipient",
+                )
+            with em_r:
+                email_format = st.selectbox(
+                    "Attachment format",
+                    ["PDF", "JSON", "CSV", "Excel"],
+                    key="rv_email_format",
+                )
+            include_llm_in_email = st.checkbox(
+                "Include AI summary in email body (if generated)",
+                value=bool(results.get("llm_summary")),
+                key="rv_email_include_llm",
+            )
+            if st.button(
+                "Send report via email",
+                type="secondary",
+                use_container_width=True,
+                key="rv_send_email",
+            ):
+                if not email_configured():
+                    st.error("Configure email in `.env` before sending.")
+                elif not recipient_email.strip():
+                    st.warning("Enter a recipient email address.")
+                else:
+                    try:
+                        attach_bytes, attach_name, attach_mime = _build_email_attachment(
+                            results,
+                            email_format,
+                            base_filename,
+                            include_llm=include_llm,
+                            incl_charts=incl_charts,
+                        )
+                        body = build_report_email_body(
+                            results, include_llm=include_llm_in_email
+                        )
+                        html_body = build_report_email_html(
+                            results, include_llm=include_llm_in_email
+                        )
+                        subject = build_report_email_subject(results)
+                        ok, msg = send_report_email(
+                            recipient_email,
+                            subject=subject,
+                            body=body,
+                            html_body=html_body,
+                            attachment_bytes=attach_bytes,
+                            filename=attach_name,
+                            mime_type=attach_mime,
+                            config=resolve_smtp_config(),
+                        )
+                        if ok:
+                            st.success(msg)
+                        else:
+                            st.error(msg)
+                    except ImportError as e:
+                        st.error(f"Missing dependency for {email_format} export: {e}")
+                    except Exception as e:
+                        st.error(f"Could not send email: {e}")
 
         st.markdown('<div class="ts-export-save-section"></div>', unsafe_allow_html=True)
         st.caption("Optional — save a copy into the project `reports/` folder on this machine.")

@@ -41,6 +41,18 @@ project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+# Load .env so SMTP, Gemini, SerpAPI keys are available to the UI
+try:
+    from dotenv import load_dotenv
+
+    _env_alt = project_root / "!.env"
+    if _env_alt.exists():
+        load_dotenv(_env_alt, override=False)
+    else:
+        load_dotenv(project_root / ".env", override=False)
+except ImportError:
+    pass
+
 from core.ingestion import read_csv_file
 from core.validator import validate_and_clean
 from core.orchestrator import run_all_agents

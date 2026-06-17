@@ -1,0 +1,227 @@
+{
+  "timestamp": "2026-05-27T15:40:42.420278",
+  "total_records": 222,
+  "agent_outputs": [
+    {
+      "agent_name": "brand_agent",
+      "results": {
+        "total_unique_brands": 18,
+        "top_brands": [
+          {
+            "brand": "Samsung",
+            "count": 31,
+            "confidence": 0.1396
+          },
+          {
+            "brand": "Xiaomi",
+            "count": 28,
+            "confidence": 0.1261
+          },
+          {
+            "brand": "Realme",
+            "count": 22,
+            "confidence": 0.0991
+          },
+          {
+            "brand": "Vivo",
+            "count": 17,
+            "confidence": 0.0766
+          },
+          {
+            "brand": "Oppo",
+            "count": 17,
+            "confidence": 0.0766
+          },
+          {
+            "brand": "Apple",
+            "count": 15,
+            "confidence": 0.0676
+          },
+          {
+            "brand": "OnePlus",
+            "count": 10,
+            "confidence": 0.045
+          },
+          {
+            "brand": "Dell",
+            "count": 10,
+            "confidence": 0.045
+          },
+          {
+            "brand": "HP",
+            "count": 9,
+            "confidence": 0.0405
+          },
+          {
+            "brand": "Asus",
+            "count": 8,
+            "confidence": 0.036
+          }
+        ],
+        "total_records": 222
+      },
+      "confidence": 0.7523,
+      "timestamp": "2026-05-27T15:40:42.384723"
+    },
+    {
+      "agent_name": "pricing_agent",
+      "results": {
+        "total_records": 222,
+        "valid_price_records": 222,
+        "price_statistics": {
+          "min_price": 499.0,
+          "max_price": 279999.0,
+          "mean_price": 65187.37837837838,
+          "median_price": 48999.0,
+          "std_price": 54467.80952227494
+        },
+        "optimal_price_range": {
+          "q1_price": 27824.5,
+          "median_price": 48999.0,
+          "q3_price": 83074.5,
+          "optimal_range_min": 27824.5,
+          "optimal_range_max": 83074.5,
+          "optimal_range_span": 55250.0
+        }
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-05-27T15:40:42.391623"
+    },
+    {
+      "agent_name": "feature_agent",
+      "results": {
+        "total_unique_features": 45,
+        "top_features": [
+          {
+            "feature": "5g",
+            "count": 133,
+            "confidence": 0.5991
+          },
+          {
+            "feature": "128gb",
+            "count": 106,
+            "confidence": 0.4775
+          },
+          {
+            "feature": "oled",
+            "count": 92,
+            "confidence": 0.4144
+          },
+          {
+            "feature": "wireless charging",
+            "count": 90,
+            "confidence": 0.4054
+          },
+          {
+            "feature": "fast charging",
+            "count": 46,
+            "confidence": 0.2072
+          },
+          {
+            "feature": "amoled",
+            "count": 39,
+            "confidence": 0.1757
+          },
+          {
+            "feature": "4g",
+            "count": 31,
+            "confidence": 0.1396
+          },
+          {
+            "feature": "512gb",
+            "count": 23,
+            "confidence": 0.1036
+          },
+          {
+            "feature": "wifi 6",
+            "count": 23,
+            "confidence": 0.1036
+          },
+          {
+            "feature": "rtx graphics",
+            "count": 23,
+            "confidence": 0.1036
+          },
+          {
+            "feature": "ips",
+            "count": 21,
+            "confidence": 0.0946
+          },
+          {
+            "feature": "256gb",
+            "count": 21,
+            "confidence": 0.0946
+          },
+          {
+            "feature": "bluetooth 5.3",
+            "count": 16,
+            "confidence": 0.0721
+          },
+          {
+            "feature": "thunderbolt 4",
+            "count": 14,
+            "confidence": 0.0631
+          },
+          {
+            "feature": "lcd",
+            "count": 13,
+            "confidence": 0.0586
+          }
+        ],
+        "total_records": 222,
+        "total_feature_mentions": 824
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-05-27T15:40:42.393044"
+    },
+    {
+      "agent_name": "gap_agent",
+      "results": {
+        "total_combinations": 96,
+        "identified_gaps_count": 5,
+        "top_gaps": [
+          {
+            "brand": "Dell",
+            "feature": "5G,OLED,128GB,Wireless Charging",
+            "observed_count": 1,
+            "expected_count": 2.97,
+            "gap_score": -0.6636
+          },
+          {
+            "brand": "Canon",
+            "feature": "5G,OLED,128GB,Wireless Charging",
+            "observed_count": 1,
+            "expected_count": 2.38,
+            "gap_score": -0.5795
+          },
+          {
+            "brand": "Motorola",
+            "feature": "5G,OLED,128GB,Wireless Charging",
+            "observed_count": 1,
+            "expected_count": 2.08,
+            "gap_score": -0.5195
+          },
+          {
+            "brand": "Realme",
+            "feature": "5G,IPS,128GB,Fast Charging",
+            "observed_count": 1,
+            "expected_count": 2.08,
+            "gap_score": -0.5195
+          },
+          {
+            "brand": "Sony",
+            "feature": "5G,OLED,128GB,Wireless Charging",
+            "observed_count": 1,
+            "expected_count": 2.08,
+            "gap_score": -0.5195
+          }
+        ],
+        "total_records": 222,
+        "gap_threshold": -0.5
+      },
+      "confidence": 1.0,
+      "timestamp": "2026-05-27T15:40:42.420240"
+    }
+  ],
+  "llm_summary": null
+}
