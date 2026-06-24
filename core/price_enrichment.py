@@ -254,7 +254,7 @@ def apply_price_enrichment(
             price_column,
             feature_column,
             key,
-            model_column=model_column,
+            model_col=model_column,
             cache=cache,
         )
         msgs.extend(live_msgs)
