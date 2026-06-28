@@ -25,6 +25,13 @@ except ImportError:
 
 _PLACEHOLDER_KEYS = frozenset({"your_groq_api_key_here", "your_api_key_here", ""})
 _DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
+_GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+# Cloudflare blocks Python urllib's default User-Agent (HTTP 403, error 1010).
+_GROQ_HTTP_HEADERS_BASE = {
+    "Content-Type": "application/json",
+    "User-Agent": "TrendScannerAI/1.0",
+    "Accept": "application/json",
+}
 
 
 def is_groq_configured(api_key: Optional[str] = None) -> bool:
@@ -104,7 +111,13 @@ def _parse_groq_error(exc: Exception) -> Tuple[str, str]:
     """Return (category, user_message) from a Groq API exception."""
     text = str(exc)
     lower = text.lower()
-    if "401" in text or "invalid" in lower and "api key" in lower:
+    if "403" in text and "1010" in text:
+        return (
+            "blocked",
+            "Groq request was blocked by Cloudflare (error 1010). "
+            "Restart the app after updating — this is fixed in the latest summarizer.",
+        )
+    if "401" in text or ("invalid" in lower and "api key" in lower):
         return (
             "auth",
             "Invalid Groq API key. Get a free key at https://console.groq.com "
@@ -220,11 +233,11 @@ def summarize_with_groq(
     ).encode("utf-8")
 
     req = urllib.request.Request(
-        "https://api.groq.com/openai/v1/chat/completions",
+        _GROQ_API_URL,
         data=payload,
         headers={
+            **_GROQ_HTTP_HEADERS_BASE,
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
         },
         method="POST",
     )

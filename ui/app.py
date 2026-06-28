@@ -2,11 +2,10 @@
 Streamlit UI for TrendScanner AI — guided workflow and tabbed insights.
 """
 
-import hashlib
+import io
 import json
 import os
 import sys
-import tempfile
 from contextlib import nullcontext
 from datetime import datetime
 from pathlib import Path
@@ -70,8 +69,43 @@ from ui.views import render_analysis_results
 
 # Cache expensive IO / transforms
 @st.cache_data
+def cached_read_csv_bytes(file_bytes: bytes, upload_signature: str):
+    """Read uploaded CSV bytes; upload_signature busts cache when the file changes."""
+    df = pd.read_csv(io.BytesIO(file_bytes), encoding="utf-8")
+    if df.empty:
+        raise pd.errors.EmptyDataError("CSV file is empty")
+    return df
+
+
+def _persist_upload(uploaded_file) -> str:
+    """Store upload in session so reruns (buttons, downloads) keep the dataset."""
+    sig = f"{uploaded_file.name}:{uploaded_file.size}"
+    if st.session_state.get("_upload_id") != sig:
+        st.session_state["_upload_id"] = sig
+        st.session_state.pop("analysis_results", None)
+        for _sk in list(st.session_state.keys()):
+            if str(_sk).startswith("_mal_"):
+                del st.session_state[_sk]
+    st.session_state["uploaded_csv_bytes"] = uploaded_file.getvalue()
+    st.session_state["uploaded_csv_name"] = uploaded_file.name
+    return sig
+
+
+def _active_upload() -> tuple[bytes | None, str | None, str | None]:
+    """Return (bytes, filename, signature) for the current session upload."""
+    data = st.session_state.get("uploaded_csv_bytes")
+    if not data:
+        return None, None, None
+    return (
+        data,
+        st.session_state.get("uploaded_csv_name", "upload.csv"),
+        st.session_state.get("_upload_id"),
+    )
+
+
+@st.cache_data
 def cached_read_csv(file_path: str, upload_signature: str):
-    """upload_signature busts cache when the user uploads a different file."""
+    """Legacy path-based reader (kept for compatibility)."""
     return read_csv_file(file_path)
 
 
@@ -111,28 +145,21 @@ uploaded_file = st.file_uploader(
     help="Include columns for brand name, numeric price in INR, and feature text.",
 )
 
-current_upload_id = None
 if uploaded_file is not None:
-    current_upload_id = f"{uploaded_file.name}:{uploaded_file.size}"
+    _persist_upload(uploaded_file)
 
-if current_upload_id and st.session_state.get("_upload_id") != current_upload_id:
-    st.session_state["_upload_id"] = current_upload_id
-    st.session_state.pop("analysis_results", None)
-    for _sk in list(st.session_state.keys()):
-        if str(_sk).startswith("_mal_"):
-            del st.session_state[_sk]
+csv_bytes, csv_name, upload_sig = _active_upload()
 
-step = 1
-if uploaded_file is not None:
-    step = 2
-if st.session_state.get("analysis_results"):
+if upload_sig and st.session_state.get("analysis_results"):
     step = 3
+elif upload_sig:
+    step = 2
+else:
+    step = 1
 
 render_step_row(step)
 
-temp_path = None
-
-if uploaded_file is None:
+if not upload_sig:
     st.markdown(
         """
         <div class="mal-upload-callout">
@@ -144,25 +171,17 @@ if uploaded_file is None:
     )
 else:
     try:
-        debug_log("ui/app.py", "Creating temp file", {"cwd": str(Path.cwd())}, "A")
-        upload_sig = current_upload_id or "none"
-        file_hash = hashlib.md5(upload_sig.encode("utf-8"), usedforsecurity=False).hexdigest()[:16]
-        temp_path = Path(tempfile.gettempdir()) / f"mal_upload_{file_hash}.csv"
-        with open(temp_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        debug_log(
-            "ui/app.py",
-            "Temp file written",
-            {"temp_path": str(temp_path), "size": temp_path.stat().st_size},
-            "A",
-        )
+        if uploaded_file is None:
+            st.caption(f"Active file: **{csv_name}** — choose a new CSV above to replace.")
+
+        debug_log("ui/app.py", "Loading CSV from session", {"name": csv_name}, "A")
 
         with st.spinner("Reading CSV…"):
-            df = cached_read_csv(str(temp_path), upload_sig)
+            df = cached_read_csv_bytes(csv_bytes, upload_sig or "none")
 
         st.success(f"Loaded **{len(df):,}** rows · **{len(df.columns)}** columns")
 
-        workspace = render_workspace_sidebar(df, uploaded_file.name)
+        workspace = render_workspace_sidebar(df, csv_name or "upload.csv")
         column_mapping = workspace["column_mapping"]
         price_mode = workspace["price_mode"]
         cleaning_strategy = workspace["cleaning_strategy"]
@@ -306,6 +325,10 @@ else:
         results = st.session_state.get("analysis_results")
         if results:
             st.markdown(
+                '<div id="mal-results-dashboard"></div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
                 '<p class="mal-rv-section-label" style="margin-top:1.5rem;">Live analytics</p>',
                 unsafe_allow_html=True,
             )
@@ -330,9 +353,3 @@ else:
             "E",
         )
         st.error(f"Something went wrong: {e}")
-    finally:
-        if temp_path and temp_path.exists():
-            try:
-                temp_path.unlink()
-            except OSError:
-                pass

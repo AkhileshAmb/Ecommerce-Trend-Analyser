@@ -46,6 +46,10 @@ The Streamlit UI provides:
    - Download analysis results as JSON
    - Includes all agent outputs and LLM summary
 
+6. **WhatsApp share**
+   - Pre-filled report summary via wa.me (click-to-chat)
+   - Enter country code + phone on the Export tab
+
 ## Configuration
 
 ### API Key Setup

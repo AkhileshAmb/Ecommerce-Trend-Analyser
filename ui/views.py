@@ -44,6 +44,12 @@ from ui.email_utils import (
     resolve_smtp_config,
     send_report_email,
 )
+from ui.whatsapp_utils import (
+    build_wa_me_url,
+    build_whatsapp_message,
+    default_country_code,
+    normalize_whatsapp_phone,
+)
 
 
 def _build_email_attachment(
@@ -127,6 +133,17 @@ def _gap_badge_class(score: float):
     return "mal-badge-watch", "Worth reviewing"
 
 
+_RESULT_TABS = (
+    "Overview",
+    "Brand analysis",
+    "Pricing analysis",
+    "Feature analysis",
+    "Gap analysis",
+    "AI summary",
+    "Export",
+)
+
+
 def render_analysis_results(
     results: Dict[str, Any],
     cleaned_df: pd.DataFrame,
@@ -139,16 +156,12 @@ def render_analysis_results(
     Render analysis with modern panels: hero strip, bordered sections, badges, chart sync.
     """
 
-    tab_ov, tab_br, tab_pr, tab_ft, tab_gp, tab_ai, tab_dl = st.tabs(
-        [
-            "Overview",
-            "Brand analysis",
-            "Pricing analysis",
-            "Feature analysis",
-            "Gap analysis",
-            "AI summary",
-            "Export",
-        ]
+    selected_tab = st.radio(
+        "Results section",
+        _RESULT_TABS,
+        horizontal=True,
+        key="mal_results_tab",
+        label_visibility="collapsed",
     )
 
     brand_result = results["agents"]["brand"]
@@ -157,7 +170,7 @@ def render_analysis_results(
     gap_result = results["agents"]["gap"]
 
     # --- Overview ---
-    with tab_ov:
+    if selected_tab == "Overview":
         _results_hero(results)
         with results_panel():
             create_dashboard_summary(results, compact_title=True, short_labels=True)
@@ -167,7 +180,7 @@ def render_analysis_results(
         )
 
     # --- Brands ---
-    with tab_br:
+    elif selected_tab == "Brand analysis":
         st.markdown('<p class="mal-rv-section-label">Share & concentration</p>', unsafe_allow_html=True)
         st.markdown("##### Brand landscape")
         st.caption("Row share (**confidence**) approximates how much each brand occupies this extract.")
@@ -211,7 +224,7 @@ def render_analysis_results(
                 st.plotly_chart(create_brand_pie_chart(brands_df), use_container_width=True)
 
     # --- Pricing ---
-    with tab_pr:
+    elif selected_tab == "Pricing analysis":
         st.markdown('<p class="mal-rv-section-label">Distribution</p>', unsafe_allow_html=True)
         st.markdown("##### Price intelligence")
         st.caption(
@@ -258,7 +271,7 @@ def render_analysis_results(
             st.warning(f"Price charts unavailable: {e}")
 
     # --- Features ---
-    with tab_ft:
+    elif selected_tab == "Feature analysis":
         st.markdown('<p class="mal-rv-section-label">Demand signals</p>', unsafe_allow_html=True)
         st.markdown("##### Feature demand")
         st.caption("Most frequent attributes in your feature column — higher **confidence** = more rows.")
@@ -290,7 +303,7 @@ def render_analysis_results(
             )
 
     # --- Gaps ---
-    with tab_gp:
+    elif selected_tab == "Gap analysis":
         st.markdown('<p class="mal-rv-section-label">Opportunity scan</p>', unsafe_allow_html=True)
         st.markdown("##### Market gaps")
         st.caption(
@@ -353,7 +366,7 @@ def render_analysis_results(
             )
 
     # --- AI summary (its own tab) ---
-    with tab_ai:
+    elif selected_tab == "AI summary":
         st.markdown('<p class="mal-rv-section-label">Large language model</p>', unsafe_allow_html=True)
         st.markdown("##### AI summary")
         st.caption(
@@ -371,6 +384,7 @@ def render_analysis_results(
                     st.markdown(cached["summary"])
                     if st.button("Regenerate summary", key="rv_llm_regen"):
                         results["llm_summary"] = None
+                        st.session_state["analysis_results"] = results
                         st.rerun()
                 else:
                     if st.button("Generate summary", type="primary", key="rv_llm_gen"):
@@ -391,9 +405,11 @@ def render_analysis_results(
                                     st.caption(f"Provider: {provider} · Model: {model}")
                                     st.markdown(summary_result["summary"])
                                     results["llm_summary"] = summary_result
+                                    st.session_state["analysis_results"] = results
                                 else:
                                     st.warning(summary_result.get("error", "Error")[:320])
                                     results["llm_summary"] = None
+                                    st.session_state["analysis_results"] = results
                             except Exception as e:
                                 st.error(str(e)[:220])
                                 results["llm_summary"] = None
@@ -408,7 +424,7 @@ def render_analysis_results(
                     )
 
     # --- Export only ---
-    with tab_dl:
+    elif selected_tab == "Export":
         st.markdown('<p class="mal-rv-section-label">Download</p>', unsafe_allow_html=True)
         st.markdown(
             '<p class="mal-export-heading">Export files</p>',
@@ -566,6 +582,81 @@ def render_analysis_results(
                         st.error(f"Missing dependency for {email_format} export: {e}")
                     except Exception as e:
                         st.error(f"Could not send email: {e}")
+
+        st.markdown('<div class="ts-export-save-section"></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<p class="mal-export-heading">WhatsApp share</p>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<p class="mal-export-blurb">Open WhatsApp with a pre-filled report summary for any '
+            "recipient. You tap <strong>Send</strong> in WhatsApp — no Business API required. "
+            "Download <strong>PDF</strong> above first if you want to attach the full report.</p>",
+            unsafe_allow_html=True,
+        )
+
+        with results_panel():
+            wa_cc, wa_phone = st.columns([1, 2])
+            with wa_cc:
+                country_code = st.text_input(
+                    "Country code",
+                    value=default_country_code(),
+                    placeholder="91",
+                    help="India = 91. Omit the + sign.",
+                    key="rv_wa_country",
+                )
+            with wa_phone:
+                recipient_phone = st.text_input(
+                    "Recipient phone",
+                    placeholder="9876543210",
+                    help="Mobile number without country code.",
+                    key="rv_wa_phone",
+                )
+            include_llm_in_wa = st.checkbox(
+                "Include AI summary in WhatsApp message (if generated)",
+                value=bool(results.get("llm_summary")),
+                key="rv_wa_include_llm",
+            )
+            wa_message = build_whatsapp_message(
+                results, include_llm=include_llm_in_wa
+            )
+            with st.expander("Preview WhatsApp message", expanded=False):
+                st.text_area(
+                    "Message",
+                    value=wa_message,
+                    height=220,
+                    disabled=True,
+                    label_visibility="collapsed",
+                    key="rv_wa_preview",
+                )
+
+            phone_ok, phone_digits, phone_err = normalize_whatsapp_phone(
+                country_code, recipient_phone
+            )
+            wa_btn_l, wa_btn_r = st.columns([1.2, 1])
+            with wa_btn_l:
+                if phone_ok:
+                    wa_url = build_wa_me_url(phone_digits, wa_message)
+                    st.link_button(
+                        "Open in WhatsApp",
+                        wa_url,
+                        type="primary",
+                        use_container_width=True,
+                    )
+                else:
+                    st.button(
+                        "Open in WhatsApp",
+                        type="primary",
+                        use_container_width=True,
+                        disabled=True,
+                        key="rv_wa_disabled",
+                    )
+            with wa_btn_r:
+                st.caption(
+                    "Opens WhatsApp Web or the mobile app with this message ready to send."
+                )
+            if recipient_phone.strip() and not phone_ok:
+                st.warning(phone_err)
 
         st.markdown('<div class="ts-export-save-section"></div>', unsafe_allow_html=True)
         st.caption("Optional — save a copy into the project `reports/` folder on this machine.")
